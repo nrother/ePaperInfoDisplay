@@ -11,6 +11,10 @@ Based on the [7.4' ePaper Display from PervasiveDisplays}(https://www.pervasived
 
 #### Unpublished
 
+#### Rev.2
+- Use bottom-connect FPC connector
+- Mirror some parts of the layout
+
 #### Rev.1 (broken)
 - First revision
 - Orientation/Location of ePaper FPC connector is wrong
