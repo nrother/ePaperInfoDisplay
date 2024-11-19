@@ -9,7 +9,7 @@ namespace pervasive_displays_epaper {
 
 class PervasiveDisplaysEPaperBase : public display::DisplayBuffer,
                             public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_LOW,
-                                                  spi::CLOCK_PHASE_LEADING, spi::DATA_RATE_8MHZ> {
+                                                  spi::CLOCK_PHASE_LEADING, spi::DATA_RATE_4MHZ> {
  public:
   void set_busy_pin(GPIOPin *busy_pin) { this->busy_pin_ = busy_pin; }
   void set_dc_pin(GPIOPin *dc_pin) { this->dc_pin_ = dc_pin; }
@@ -48,7 +48,7 @@ class PervasiveDisplaysEPaper : public PervasiveDisplaysEPaperBase {
   void draw_absolute_pixel_internal(int x, int y, Color color) override;
   uint32_t get_buffer_length_() override;
   virtual void dump_config_model_() = 0;
-  void reset_(uint32_t ms1, uint32_t ms2, uint32_t ms3, uint32_t ms4, uint32_t ms5);
+  void power_on_COG_();
   void DCDC_soft_start_mid_();
   void DCDC_soft_shutdown_mid_();
   void send_index_data_(uint8_t index, const uint8_t *data, uint32_t len);
