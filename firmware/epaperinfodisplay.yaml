@@ -1,0 +1,86 @@
+esphome:
+  name: epaperinfodisplay
+  #on_boot:
+  #  - component.update: epaper
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: arduino
+
+external_components:
+  - source:
+      type: local
+      path: ../esphome/components/
+
+# Enable logging
+logger:
+  hardware_uart: UART0
+
+# Enable Home Assistant API
+#api:
+#  password: ""
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Epaperinfodisplay"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+output:
+  - platform: gpio
+    pin: 7
+    id: led_1
+  - platform: gpio
+    pin: 8
+    id: led_2
+
+switch:
+  - platform: output
+    name: LED 1
+    output: led_1
+  - platform: output
+    name: LED 2
+    output: led_2
+
+spi:
+  clk_pin:
+    number: 2
+    ignore_strapping_warning: true
+  mosi_pin: 3
+
+display:
+  id: epaper
+  platform: pervasive_displays_epaper
+  update_interval: 1h
+  reset_pin: 10
+  busy_pin: 4
+  enable_pin: 6
+  model: "7.41in"
+  dc_pin: 0
+  cs_pin: 1
+  rotation: 270°
+  lambda: |-
+    //draw only the image
+    it.image(0, 0, id(frame_image));
+
+online_image:
+  - url: !secret image_url
+    id: frame_image
+    format: PNG
+    #placeholder
+    type: BINARY
+    on_download_finished:
+      component.update: epaper
+
+http_request: # required by online_image
+  verify_ssl: false #not supported on the Arduino framework
