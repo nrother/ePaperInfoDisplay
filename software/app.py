@@ -16,6 +16,8 @@ locale.setlocale(locale.LC_ALL, '') # set default locale from the system setting
 
 #http_session = requests_cache.CachedSession('.cache', expire_after=3600, backend='filesystem')
 import requests
+import numpy as np
+from scipy.interpolate import make_interp_spline
 http_session = requests
 # DAVClient has not support for caching, so enabled it globally...
 # TODO: Looks like it does not work...
@@ -134,10 +136,34 @@ def frame_image():
         if i in [-10, 0, 20]:
             draw.text((20, y), f"{i}", font=font_xsmall, anchor="rm")
     # chart data
-    points = [(30 + i * (360-30) / 24, 450 - (d + 10) * (450-300) / 40) for i,d in enumerate(weather_data['hourly']['temperature_2m'])]
+    # Prepare data points
+    x = np.array([30 + i * (360-30) / 24 for i in range(24)])
+    y = np.array([450 - (d + 10) * (450-300) / 40 for d in weather_data['hourly']['temperature_2m']])
+
+    # Spline interpolation for smooth curve
+    x_new = np.linspace(x.min(), x.max(), 200)
+    spline = make_interp_spline(x, y, k=3)
+    y_smooth = spline(x_new)
+
+    # Draw smooth line
+    points = list(zip(x_new, y_smooth))
     draw.line(points, fill=0, width=2)
-    for p in points:
-        draw.circle(p, 3, fill=0)
+
+    # Draw circles at original data points
+    # for px, py in zip(x, y):
+    #     draw.circle((px, py), 2, fill=0)
+
+    # Draw checkerboard pattern under the curve
+    checker_size = 1
+    for i in range(len(x_new) - 1):
+        x_start = int(x_new[i])
+        x_end = int(x_new[i + 1])
+        y_top = int(y_smooth[i])
+        y_bottom = 450  # bottom of chart area
+        for x_pos in range(x_start, x_end):
+            for y_pos in range(y_top, y_bottom):
+                if ((x_pos // checker_size) + (y_pos // checker_size)) % 2 == 0:
+                    img.putpixel((x_pos, y_pos), 0)
 
     # Calendar
     cal_pos = (450, 300)
