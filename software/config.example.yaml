@@ -1,0 +1,10 @@
+open_meteo:
+  lat: 52.00
+  lon: 9.00
+caldav:
+  url: "https://my.calendar.server/baikal/html/dav.php/calendars/user/default/"
+  username: "user"
+  password: "password"
+  calendars:
+    - "Private"
+    - "Office"
