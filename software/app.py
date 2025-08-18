@@ -28,7 +28,7 @@ http_session = requests
 requests_cache.install_cache('.cache', expire_after=3600, backend='filesystem')
 
 # Load config from config.yaml
-with open('config.yaml', 'r') as file:
+with open('config/config.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
 # Load WMO to weather icon mapping
