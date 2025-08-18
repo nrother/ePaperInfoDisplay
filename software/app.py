@@ -105,20 +105,20 @@ def frame_image():
     assert weather_data
     draw.text((170, 70), f"{weather_data['daily']['temperature_2m_max'][0]:.1f} °C", font=font_xlarge) # max
     draw.text((170, 130), f"{weather_data['daily']['temperature_2m_min'][0]:.1f} °C", font=font_large) # min
-    icon_name = wmo_to_icon_name.get(weather_data['daily']['weather_code'][0], 'thermometer')
+    icon_name = wmo_to_icon_name.get(weather_data['daily']['weather_code'][0], 'na')
     draw.bitmap((30, 50), Image.open(f"weather-icons/wi-{icon_name}_128.png")) # weather icon
 
     draw.text((50+0*80, 240), "08:00", font=font_small)
-    icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][8], 'thermometer')
+    icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][8], 'na')
     draw.bitmap((40+0*80, 180), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
     draw.text((50+1*80, 240), "12:00", font=font_small)
-    icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][12], 'thermometer')
+    icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][12], 'na')
     draw.bitmap((40+1*80, 180), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
     draw.text((50+2*80, 240), "16:00", font=font_small)
-    icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][16], 'thermometer')
+    icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][16], 'na')
     draw.bitmap((40+2*80, 180), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
     draw.text((50+3*80, 240), "20:00", font=font_small)
-    icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][20], 'thermometer')
+    icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][20], 'na')
     draw.bitmap((40+3*80, 180), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
 
     # Temperature chart
