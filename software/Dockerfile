@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install system dependencies (if needed)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential wget fontconfig \
+    build-essential wget fontconfig locales \
     && rm -rf /var/lib/apt/lists/*
 
 # Install SegoeUI font
@@ -12,6 +12,10 @@ RUN mkdir -p /usr/share/fonts/Microsoft/TrueType/SegoeUI && \
     wget -q https://github.com/mrbvrz/segoe-ui/raw/master/font/segoeui.ttf?raw=true -O /usr/share/fonts/Microsoft/TrueType/SegoeUI/segoeui.ttf && \
     wget -q https://github.com/mrbvrz/segoe-ui/raw/master/font/segoeuib.ttf?raw=true -O /usr/share/fonts/Microsoft/TrueType/SegoeUI/seguisb.ttf && \
     fc-cache -f /usr/share/fonts/Microsoft/TrueType/SegoeUI
+
+# Set German locale
+RUN locale-gen de_DE.UTF-8 && \
+    update-locale LANG=de_DE.UTF-8
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt ./
