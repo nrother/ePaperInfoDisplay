@@ -14,10 +14,12 @@ RUN mkdir -p /usr/share/fonts/Microsoft/TrueType/SegoeUI && \
     fc-cache -f /usr/share/fonts/Microsoft/TrueType/SegoeUI
 
 # Set German locale
-RUN locale-gen de_DE.UTF-8
-ENV LANG de_DE.UTF-8
-ENV LANGUAGE de_DE:de
-ENV LC_ALL de_DE.UTF-8
+RUN sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen && \
+    update-locale LANG=de_DE.UTF-8
+ENV LANG=de_DE.UTF-8
+ENV LANGUAGE=de_DE:de
+ENV LC_ALL=de_DE.UTF-8
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt ./
