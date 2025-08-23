@@ -4,7 +4,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 from PIL import Image, ImageDraw, ImageFont
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 from io import BytesIO
 import os
 import locale
@@ -76,7 +76,7 @@ def fetch_upcoming_events(max_lines=10):
     calendars = principal.calendars()
     if not calendars:
         return {}
-    now = datetime.now()
+    now = datetime.now(timezone.utc) # time must be in UTC otherwise full-day events from yesterday are found (see https://github.com/python-caldav/caldav/issues/351)
     future = now + timedelta(days=7)
     events = defaultdict(list)
     max_lines -= len(config['caldav']['calendars']) # reserve one line for each calendar name
