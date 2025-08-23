@@ -102,7 +102,7 @@ def fetch_upcoming_events(max_lines=10):
 def format_event_start_time(start_time: datetime|date) -> str:
     # full-day event?
     if not isinstance(start_time, datetime):
-        return "——"
+        return " ——"
     else:
         return start_time.strftime("%H:%M")
 
@@ -224,6 +224,7 @@ def update_image():
                 for event in cal_events:
                     summary_str = textwrap.shorten(event.summary.value, width=28, placeholder="...")
                     # Draw the event details separately to align the columns
+                    print(event.summary.value, event.dtstart.value)
                     draw.text((agenda_pos[0] + 0, agenda_pos[1] + ai * agenda_spacing), event.dtstart.value.strftime("%a"), font=font_small, anchor="la")
                     draw.text((agenda_pos[0] + 33, agenda_pos[1] + ai * agenda_spacing), event.dtstart.value.strftime("%d.%m"), font=font_small, anchor="la")
                     draw.text((agenda_pos[0] + 82, agenda_pos[1] + ai * agenda_spacing), format_event_start_time(event.dtstart.value), font=font_small, anchor="la")
