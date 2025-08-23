@@ -3,6 +3,8 @@ name: Create a Docker image from the software and publish it
 on:
   push:
     branches: ['main']
+    paths:
+      - 'software/**'
 
 env:
   REGISTRY: ghcr.io
