@@ -55,6 +55,17 @@ spi:
     ignore_strapping_warning: true
   mosi_pin: 3
 
+globals:
+  - id: image_download_ok
+    type: 'bool'
+    restore_value: no
+    initial_value: 'false'
+
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_20
+    size: 20
+
 display:
   id: epaper
   platform: pervasive_displays_epaper
@@ -67,8 +78,15 @@ display:
   cs_pin: 1
   rotation: 270°
   lambda: |-
-    //draw only the image
-    it.image(0, 0, id(frame_image), COLOR_OFF, COLOR_ON);
+    if (id(image_download_ok)) {
+      //draw only the image
+      it.image(0, 0, id(frame_image), COLOR_OFF, COLOR_ON);
+    } else {
+      //draw error message
+      it.fill(COLOR_ON);
+      it.print(400, 50, id(roboto_20), COLOR_OFF, TextAlign::CENTER, "Error");
+      it.print(400, 100, id(roboto_20), COLOR_OFF, TextAlign::CENTER, "Image Download failed");
+    }
 
 online_image:
   - url: !secret image_url
@@ -81,17 +99,22 @@ online_image:
     type: BINARY
     buffer_size: 16384 # 16kB buffer, otherwise fails with out of memory
     on_download_finished:
+      - globals.set:
+          id: image_download_ok
+          value: 'true'
       - script.execute: update_display_script
     on_error:
-      # TODO: Display error message, maybe only sleep for 30min or so?
-      - script.execute: enter_deepsleep_script
+      - globals.set:
+          id: image_download_ok
+          value: 'false'
+      - script.execute: update_display_script
 
 http_request: # required by online_image
   verify_ssl: false #not supported on the Arduino framework
 
 deep_sleep:
   run_duration: 1h # we explicitly enter deep sleep
-  sleep_duration: 24h
+  sleep_duration: 24h # TODO: Add a time component and use until: to wakeup in the night
 
 script:
   - id: download_image_script
@@ -105,7 +128,6 @@ script:
     then:
       - wifi.disable: # disable wifi after image was downloaded
       - component.update: epaper
-      - logger.log: "Calling sleep script"
       - script.execute: enter_deepsleep_script
   - id: enter_deepsleep_script
     then:
