@@ -14,11 +14,24 @@ This repository contains the hardware, firmware and software for the project.
 
 The `hardware/` folder contains all schematics and PCB layouts in KiCAD format.
 
-Please note that there are *critical* bugs in the schematic, see below.
-
 ### Changelog
 
-#### Unpublished
+#### Rev. 3
+
+- Fixed swapped USB DP+/-, USB usable again
+- Fixed swapped labels USR1/USR2
+- Add resistor divider for VBAT_SENSE to avoid excessive voltage on GPIO pin
+- WAKEUP button changed to BOOT (connected to GPIO9)
+- VBAT_SENSE moved to GPIO4 which has a usable ADC
+- GPIO association of some signals changed to avoid issues strapping pins:
+	- LED1 now on GPIO5
+	- LED2 now on GPIO6
+	- /BUSY now on GPIO7
+	- /PWR_EN now on GPIO8
+
+##### Known issues
+
+None
 
 #### Rev.2 (only usable with fixes)
 - Use bottom-connect FPC connector
