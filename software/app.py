@@ -76,7 +76,7 @@ def fetch_upcoming_events(max_lines=10):
     calendars = principal.calendars()
     if not calendars:
         return {}
-    now = datetime.now(timezone.utc) # time must be in UTC otherwise full-day events from yesterday are found (see https://github.com/python-caldav/caldav/issues/351)
+    now = datetime.now(timezone.utc) # must be UTC, see https://github.com/python-caldav/caldav/issues/545
     future = now + timedelta(days=7)
     events = defaultdict(list)
     max_lines -= len(config['caldav']['calendars']) # reserve one line for each calendar name
@@ -130,7 +130,7 @@ def update_image():
 
             # Draw date
             now = datetime.now()
-            draw.text((200, 20), now.strftime("%d. %b %Y"), font=font_large, anchor="ma")
+            draw.text((200, 20), now.strftime("%a. %d. %b %Y"), font=font_large, anchor="ma")
             
             # Current day weather
             weather_data = fetch_weather_data()
@@ -139,18 +139,18 @@ def update_image():
             icon_name = wmo_to_icon_name.get(weather_data['daily']['weather_code'][0], 'na')
             draw.bitmap((30, 70), Image.open(f"weather-icons/wi-{icon_name}_128.png")) # weather icon
 
-            draw.text((50+0*80, 240), "08:00", font=font_small)
+            draw.text((50+0*80, 260), "08:00", font=font_small)
             icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][8], 'na')
-            draw.bitmap((40+0*80, 180), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
-            draw.text((50+1*80, 240), "12:00", font=font_small)
+            draw.bitmap((40+0*80, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
+            draw.text((50+1*80, 260), "12:00", font=font_small)
             icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][12], 'na')
-            draw.bitmap((40+1*80, 180), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
-            draw.text((50+2*80, 240), "16:00", font=font_small)
+            draw.bitmap((40+1*80, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
+            draw.text((50+2*80, 260), "16:00", font=font_small)
             icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][16], 'na')
-            draw.bitmap((40+2*80, 180), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
-            draw.text((50+3*80, 240), "20:00", font=font_small)
+            draw.bitmap((40+2*80, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
+            draw.text((50+3*80, 260), "20:00", font=font_small)
             icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][20], 'na')
-            draw.bitmap((40+3*80, 180), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
+            draw.bitmap((40+3*80, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
 
             # Temperature chart
             draw.line((30, 450, 360, 450)) # x-axis
@@ -219,12 +219,13 @@ def update_image():
             ai = 0
             for cal_name in config['caldav']['calendars']: # we don't use events.values() here because we want to keep the order from the config file
                 cal_events = events.get(cal_name, [])
+                if len(cal_events) == 0:
+                    continue # don't draw the header if there are no events
                 draw.text((agenda_pos[0], agenda_pos[1] + ai * agenda_spacing), cal_name, font=font_small_semibold, anchor="la")
                 ai += 1
                 for event in cal_events:
                     summary_str = textwrap.shorten(event.summary.value, width=28, placeholder="...")
                     # Draw the event details separately to align the columns
-                    print(event.summary.value, event.dtstart.value)
                     draw.text((agenda_pos[0] + 0, agenda_pos[1] + ai * agenda_spacing), event.dtstart.value.strftime("%a"), font=font_small, anchor="la")
                     draw.text((agenda_pos[0] + 33, agenda_pos[1] + ai * agenda_spacing), event.dtstart.value.strftime("%d.%m"), font=font_small, anchor="la")
                     draw.text((agenda_pos[0] + 82, agenda_pos[1] + ai * agenda_spacing), format_event_start_time(event.dtstart.value), font=font_small, anchor="la")

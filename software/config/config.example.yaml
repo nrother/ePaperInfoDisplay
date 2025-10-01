@@ -8,3 +8,4 @@ caldav:
   calendars:
     - "Private"
     - "Office"
+wakeup_time: "00:15"
