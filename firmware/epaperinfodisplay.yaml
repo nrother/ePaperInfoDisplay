@@ -113,8 +113,9 @@ http_request: # required by online_image
   verify_ssl: false #not supported on the Arduino framework
 
 deep_sleep:
+  id: my_deep_sleep
   run_duration: 1h # we explicitly enter deep sleep
-  sleep_duration: 24h # TODO: Add a time component and use until: to wakeup in the night
+  sleep_duration: 24h # default
 
 script:
   - id: download_image_script
@@ -124,6 +125,20 @@ script:
       #     format: "VCC is %.1f V"
       #     args: ['id(vcc_sensor).state']
       - component.update: frame_image
+      - http_request.get:
+          url: !secret wakeup_time_url
+          capture_response: true
+          on_response:
+              - lambda: |-
+                  if (response->status_code == 200) {
+                      int next = std::stoi(body);
+                      id(my_deep_sleep).set_sleep_duration(next * 1000);
+                  } else {
+                      id(my_deep_sleep).set_sleep_duration(6 * 60 * 60 * 1000); // default to 6h
+                  }
+          on_error:
+              - lambda: |-
+                  id(my_deep_sleep).set_sleep_duration(6 * 60 * 60 * 1000); // default to 6h
   - id: update_display_script
     then:
       - wifi.disable: # disable wifi after image was downloaded

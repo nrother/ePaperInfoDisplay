@@ -262,6 +262,17 @@ def frame_image():
         return "No image available", 404
     return send_file(BytesIO(last_image), mimetype='image/png')
 
+@app.route('/next_wakeup_time')
+def next_wakeup_time():
+    """Tell the hardware in how many minute to check back. """
+    now = datetime.now()
+    next_wakeup = config['wakeup_time']
+    next_wakeup_dt = datetime.strptime(next_wakeup, "%H:%M").replace(year=now.year, month=now.month, day=now.day)
+    if next_wakeup_dt <= now:
+        next_wakeup_dt += timedelta(days=1)
+    seconds_until_next_wakeup = int((next_wakeup_dt - now).total_seconds())
+    return str(seconds_until_next_wakeup)
+
 @app.route('/status')
 def status():
     """ Serve the current status information. """
