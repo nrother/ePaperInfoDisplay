@@ -256,6 +256,9 @@ def update_image():
 @app.route('/frame.png')
 def frame_image():
     """ Serve the current frame image. """
+    if app.debug:
+        logger.info("Debug mode active, generating image on the fly")
+        update_image()
     global last_image, last_request_time
     last_request_time = datetime.now()
     if last_image is None:
