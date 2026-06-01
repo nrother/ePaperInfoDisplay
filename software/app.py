@@ -56,7 +56,8 @@ def fetch_weather_data():
     lat = config['open_meteo']['lat']
     lon = config['open_meteo']['lon']
     today = datetime.now().strftime("%Y-%m-%d")
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=temperature_2m_max,temperature_2m_min,weather_code&hourly=weather_code,temperature_2m,rain&timezone=Europe%2FBerlin&start_date={today}&end_date={today}"
+    three_days_later = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=temperature_2m_max,temperature_2m_min,weather_code&hourly=temperature_2m,precipitation&timezone=Europe%2FBerlin&start_date={today}&end_date={three_days_later}"
     response = http_session.get(url)
     return response.json()
 
@@ -139,18 +140,28 @@ def update_image():
             icon_name = wmo_to_icon_name.get(weather_data['daily']['weather_code'][0], 'na')
             draw.bitmap((30, 70), Image.open(f"weather-icons/wi-{icon_name}_128.png")) # weather icon
 
-            draw.text((50+0*80, 260), "08:00", font=font_small)
-            icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][8], 'na')
-            draw.bitmap((40+0*80, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
-            draw.text((50+1*80, 260), "12:00", font=font_small)
-            icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][12], 'na')
-            draw.bitmap((40+1*80, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
-            draw.text((50+2*80, 260), "16:00", font=font_small)
-            icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][16], 'na')
-            draw.bitmap((40+2*80, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
-            draw.text((50+3*80, 260), "20:00", font=font_small)
-            icon_name = wmo_to_icon_name.get(weather_data['hourly']['weather_code'][20], 'na')
-            draw.bitmap((40+3*80, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png")) # weather icon
+            # Next days weather
+            draw.text((70+0*120, 260), (date.today() + timedelta(days=1)).strftime("%A"), font=font_small, anchor="ma")
+            draw.text((70+0*120, 210), f"{weather_data['daily']['temperature_2m_max'][1]:.1f} °C", font=font_small_semibold)
+            draw.text((70+0*120, 232), f"{weather_data['daily']['temperature_2m_min'][1]:.1f} °C", font=font_small)
+            icon_name = wmo_to_icon_name.get(weather_data['daily']['weather_code'][1], 'na')
+            draw.bitmap((12+0*120, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png"))
+
+            draw.line((13+1*120, 200, 13+1*120, 290), fill=0) # separator line between days
+
+            draw.text((70+1*120, 260), (date.today() + timedelta(days=2)).strftime("%A"), font=font_small, anchor="ma")
+            draw.text((70+1*120, 210), f"{weather_data['daily']['temperature_2m_max'][2]:.1f} °C", font=font_small_semibold)
+            draw.text((70+1*120, 232), f"{weather_data['daily']['temperature_2m_min'][2]:.1f} °C", font=font_small)
+            icon_name = wmo_to_icon_name.get(weather_data['daily']['weather_code'][2], 'na')
+            draw.bitmap((12+1*120, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png"))
+            
+            draw.line((13+2*120, 200, 13+2*120, 290), fill=0) # separator line between days
+
+            draw.text((70+2*120, 260), (date.today() + timedelta(days=3)).strftime("%A"), font=font_small, anchor="ma")
+            icon_name = wmo_to_icon_name.get(weather_data['daily']['weather_code'][3], 'na')
+            draw.text((70+2*120, 210), f"{weather_data['daily']['temperature_2m_max'][3]:.1f} °C", font=font_small_semibold)
+            draw.text((70+2*120, 232), f"{weather_data['daily']['temperature_2m_min'][3]:.1f} °C", font=font_small)
+            draw.bitmap((12+2*120, 200), Image.open(f"weather-icons/wi-{icon_name}_64.png"))
 
             # Temperature chart
             draw.line((30, 450, 360, 450)) # x-axis
@@ -169,7 +180,7 @@ def update_image():
             # chart data
             # Prepare data points
             x = np.array([30 + i * (360-30) / 23 for i in range(24)])
-            y = np.array([450 - (d + 10) * (450-300) / 40 for d in weather_data['hourly']['temperature_2m']])
+            y = np.array([450 - (d + 10) * (450-300) / 40 for d in weather_data['hourly']['temperature_2m'][0:24]])
 
             # Spline interpolation for smooth curve
             x_new = np.linspace(x.min(), x.max(), 200)
@@ -195,6 +206,19 @@ def update_image():
                     for y_pos in range(y_top, y_bottom):
                         if ((x_pos // checker_size) + (y_pos // checker_size)) % 2 == 0:
                             img.putpixel((x_pos, y_pos), 0)
+
+            # Rain chart
+            draw.line((360, 450, 360, 300)) # y-axis
+            draw.text((370, 300), "mm", font=font_xsmall, anchor="lm")
+            for i in range(0, 50, 10): # y-axis ticks
+                y = 450 - i * (450-300) / 50
+                draw.line((360, y, 365, y))
+                if i in [0, 20, 40]:
+                    draw.text((370, y), f"{i}", font=font_xsmall, anchor="lm")
+            # chart data
+            y = np.array([450 - d * (450-300) / 50 for d in weather_data['hourly']['precipitation'][0:24]])
+            for i in range(24):
+                draw.rectangle((x[i] - 3, y[i], x[i] + 3, 450), fill=0)
 
             # Calendar
             cal_pos = (450, 300)
