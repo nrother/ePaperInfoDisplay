@@ -71,9 +71,9 @@ def fetch_upcoming_events(max_lines=10):
     url = config['caldav']['url']
     username = config['caldav']['username']
     password = config['caldav']['password']
-    client = caldav.DAVClient(url, username=username, password=password)
-    principal = client.principal()
-    calendars = principal.calendars()
+    client = caldav.get_davclient(url=url, username=username, password=password)
+    principal = client.get_principal()
+    calendars = principal.get_calendars()
     if not calendars:
         return {}
     now = datetime.now(timezone.utc) # must be UTC, see https://github.com/python-caldav/caldav/issues/545
@@ -83,11 +83,11 @@ def fetch_upcoming_events(max_lines=10):
     if max_lines <= 0:
         raise ValueError("max_lines must be greater than the number of calendars")
     for calendar in calendars:
-        if not calendar.name in config['caldav']['calendars']:
+        if not calendar.get_display_name() in config['caldav']['calendars']:
             continue
         results = calendar.search(start=now, end=future, event=True, expand=True, sort_keys="dtstart")
         for event in results:
-            events[calendar.name].append(event.instance.vevent)
+            events[calendar.get_display_name()].append(event.instance.vevent)
             if len(events) >= max_lines: #each calendar could be the only one with events, so fetch the maximum here
                 break
     # now limit the number of events per calendar
