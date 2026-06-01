@@ -156,10 +156,10 @@ def update_image():
             draw.line((30, 450, 360, 450)) # x-axis
             draw.line((30, 450, 30, 300)) # y-axis
             for i in range(24): # x-axis ticks
-                x = 30 + i * (360-30) / 24
+                x = 30 + i * (360-30) / 23
                 draw.line((x, 450, x, 455)) 
                 if i in [0, 12, 23]:
-                    draw.text((x, 465), f"{i:02d}:00", font=font_xsmall, anchor="ma")
+                    draw.text((x, 460), f"{i:02d}:00", font=font_xsmall, anchor="ma")
             draw.text((20, 300), "°C", font=font_xsmall, anchor="rm")
             for i in range(-10, 30, 5): # y-axis ticks
                 y = 450 - (i + 10) * (450-300) / 40
@@ -168,7 +168,7 @@ def update_image():
                     draw.text((20, y), f"{i}", font=font_xsmall, anchor="rm")
             # chart data
             # Prepare data points
-            x = np.array([30 + i * (360-30) / 24 for i in range(24)])
+            x = np.array([30 + i * (360-30) / 23 for i in range(24)])
             y = np.array([450 - (d + 10) * (450-300) / 40 for d in weather_data['hourly']['temperature_2m']])
 
             # Spline interpolation for smooth curve
