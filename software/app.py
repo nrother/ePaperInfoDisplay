@@ -210,13 +210,13 @@ def update_image():
             # Rain chart
             draw.line((360, 450, 360, 300)) # y-axis
             draw.text((370, 300), "mm", font=font_xsmall, anchor="lm")
-            for i in range(0, 50, 10): # y-axis ticks
-                y = 450 - i * (450-300) / 50
+            for i in range(0, 5, 1): # y-axis ticks
+                y = 450 - i * (450-300) / 5
                 draw.line((360, y, 365, y))
-                if i in [0, 20, 40]:
+                if i in [0, 2, 4]:
                     draw.text((370, y), f"{i}", font=font_xsmall, anchor="lm")
             # chart data
-            y = np.array([450 - d * (450-300) / 50 for d in weather_data['hourly']['precipitation'][0:24]])
+            y = np.array([450 - d * (450-300) / 5 for d in weather_data['hourly']['precipitation'][0:24]])
             for i in range(24):
                 draw.rectangle((x[i] - 3, y[i], x[i] + 3, 450), fill=0)
 
