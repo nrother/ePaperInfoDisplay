@@ -8,4 +8,7 @@ caldav:
   calendars:
     - "Private"
     - "Office"
+  blocklist: # any event with a title containing any of this words is never shown
+    - appointment
+    - suprise party
 wakeup_time: "00:15"

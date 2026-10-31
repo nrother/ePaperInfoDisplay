@@ -88,6 +88,10 @@ def fetch_upcoming_events(max_lines=10):
             continue
         results = calendar.search(start=now, end=future, event=True, expand=True, sort_keys="dtstart")
         for event in results:
+            # check if title is in blocklist
+            event_title = event.instance.vevent.summary.value
+            if any(b in event_title for b in config['caldav'].get('blocklist', [])):
+                continue
             events[calendar.get_display_name()].append(event.instance.vevent)
             if len(events) >= max_lines: #each calendar could be the only one with events, so fetch the maximum here
                 break
