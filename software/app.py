@@ -292,10 +292,17 @@ def frame_image():
 @app.route('/next_wakeup_time')
 def next_wakeup_time():
     """Tell the hardware in how many minute to check back. """
+    # Create a datetime from today, but with the wakeup time
     now = datetime.now()
     next_wakeup = config['wakeup_time']
     next_wakeup_dt = datetime.strptime(next_wakeup, "%H:%M").replace(year=now.year, month=now.month, day=now.day)
+    # Is that time in the past? Then add a day for the correct time
     if next_wakeup_dt <= now:
+        next_wakeup_dt += timedelta(days=1)
+    # If we would wake up in the next 5 minutes move the wakeup by one day
+    # Otherwise there will be two wakeups in a very short interval if the clock
+    # in the hardware looses a few seconds (which is does)
+    if (now - next_wakeup_dt) < timedelta(minutes=5):
         next_wakeup_dt += timedelta(days=1)
     seconds_until_next_wakeup = int((next_wakeup_dt - now).total_seconds())
     return str(seconds_until_next_wakeup)
